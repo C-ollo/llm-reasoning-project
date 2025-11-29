@@ -318,4 +318,56 @@ Pay attention to whether the answer should be a list, number, or text.
                 return short_lines[-1]
             return lines[-1]
         
-        return response.strip()    
+        return response.strip()
+    
+    
+def main():
+    """Main function to process the development data."""
+    import json
+    
+    # Load development data
+    with open('cse476_final_project_dev_data.json', 'r') as f:
+        data = json.load(f)
+    
+    # Initialize agent
+    agent = ReasoningAgent()
+    
+    # Get one example from each domain
+    examples = {}
+    for item in data:
+        domain = item['domain']
+        if domain not in examples:
+            examples[domain] = item
+        if len(examples) == 5:
+            break
+    
+    # Test each domain
+    results = []
+    for domain, item in sorted(examples.items()):
+        print(f"\n{'='*80}")
+        print(f"Domain: {domain}")
+        print(f"Question: {item['input'][:200]}...")
+        print(f"Expected: {item['output'][:100]}...")
+        
+        answer = agent.solve(item['input'], domain)
+        
+        print(f"Got: {answer[:100]}...")
+        print(f"API calls: {agent.call_count}")
+        
+        results.append({
+            'domain': domain,
+            'expected': item['output'],
+            'predicted': answer,
+            'calls': agent.call_count
+        })
+        
+        time.sleep(0.5)
+    
+    print("\n" + "="*80)
+    print(f"Tested {len(results)} examples (1 per domain)")
+    
+    return results
+
+
+if __name__ == "__main__":
+    results = main()        
