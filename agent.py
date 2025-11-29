@@ -265,4 +265,57 @@ Pay attention to whether the answer should be a list, number, or text.
             # Fallback: use CoT
             answer = self.chain_of_thought(question, domain)
         
-        return answer    
+        return answer
+
+    # Helper Methods
+    # ========================
+    
+    def _extract_answer(self, response: str, domain: str) -> str:
+        """Extract the final answer from the model's response."""
+        if not response:
+            return ""
+        
+        # For coding, return the whole response
+        if domain == 'coding':
+            return response.strip()
+        
+        # For planning, return the whole response
+        if domain == 'planning':
+            return response.strip()
+        
+        # For future_prediction, look for list or number format
+        if domain == 'future_prediction':
+            # Try to find list format
+            list_match = re.search(r'\[([^\]]+)\]', response)
+            if list_match:
+                return list_match.group(0)
+            # Otherwise return cleaned response
+            return response.strip()
+        
+        # For math and common_sense, extract concise answer
+        patterns = [
+            r"(?:Therefore|Thus|Hence|So),?\s+(?:the\s+)?answer\s+is:?\s*(.+?)(?:\n|$)",
+            r"Final answer:?\s*(.+?)(?:\n|$)",
+            r"Verified answer:?\s*(.+?)(?:\n|$)",
+            r"Answer:?\s*(.+?)(?:\n|$)",
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, response, re.IGNORECASE)
+            if match:
+                answer = match.group(1).strip()
+                # Clean up common artifacts
+                answer = re.sub(r'[\*\#]+', '', answer)
+                answer = answer.strip('.')
+                return answer
+        
+        # Fallback: return last line or first short line
+        lines = [l.strip() for l in response.split('\n') if l.strip()]
+        if lines:
+            # Prefer short lines (likely the answer)
+            short_lines = [l for l in lines if len(l) < 100]
+            if short_lines:
+                return short_lines[-1]
+            return lines[-1]
+        
+        return response.strip()    
