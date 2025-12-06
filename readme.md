@@ -11,7 +11,7 @@ This project implements an inference-time reasoning agent that uses Chain-of-Tho
 - Robust error handling with retry logic
 - Production-quality thread-safe operations
 
----
+--
 
 ## Quick Start
 
