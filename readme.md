@@ -31,13 +31,13 @@ python3 --version
 
 ### 2. Test Data (6,208 examples)
 
-**File:** `generate_final_answers.py`
+**File:** `submision.py`
 
 **What it does:** Processes 6,208 test examples using concurrent processing with 5 workers
 
 **How to run:**
 ```bash
-python3 generate_final_answers.py
+python3 submission.py
 ```
 
 - **429 backoff:** 3s, 6s, 12s, 24s, 48s (longer for rate limits)
